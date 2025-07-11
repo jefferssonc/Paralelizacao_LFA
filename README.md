@@ -16,4 +16,6 @@ Isso é um comportamento comum quando o paralelismo envolve overhead consideráv
 
 ---
 
+## Autor da Paralelização
 
+Jeffersson de Carvalho - [https://github.com/jefferssonc](https://github.com/jefferssonc)
