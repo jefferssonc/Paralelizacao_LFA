@@ -1,14 +1,33 @@
 import heapq
 import networkx as nx
-
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 from multiprocessing import Pool, freeze_support
 import time
 
+
 class TuringMachine:
+    """
+    Representa uma máquina de Turing com estados, fita, transições,
+    estado inicial e estados de aceitação.
+
+    A máquina pode ser executada de forma sequencial ou paralela para
+    buscar uma fita final aceita com custo mínimo.
+    """
+
     def __init__(self, states, tape, transitions, start_state, accept_states):
+        """
+        Inicializa a máquina de Turing.
+
+        Args:
+            states (set): Conjunto de estados da máquina.
+            tape (list): Lista inicial representando a fita.
+            transitions (dict): Dicionário com transições no formato
+                {(estado, símbolo): [(próximo_estado, símbolo_a_escrever, movimento, peso), ...]}.
+            start_state (str): Estado inicial da máquina.
+            accept_states (set): Conjunto de estados de aceitação.
+        """
         self.states = states
         self.tape = list(tape) + ['_']
         self.transitions = transitions
@@ -18,7 +37,17 @@ class TuringMachine:
         self.history = []
 
     def run_sequential(self):
-        """Versão sequencial para comparação."""
+        """
+        Executa a máquina de Turing de forma sequencial para encontrar
+        uma fita final aceita com custo mínimo.
+
+        Utiliza uma fila de prioridade (heap) para explorar os estados.
+
+        Returns:
+            tuple or None: Retorna uma tupla contendo a fita final como string,
+            o caminho percorrido como lista de transições, e o custo total.
+            Retorna None se não encontrar estado de aceitação.
+        """
         priority_queue = [(0, self.start_state, self.head, list(self.tape), [])]
         visited = {}
 
@@ -61,6 +90,16 @@ class TuringMachine:
         return None
 
     def _apply_transition(self, args):
+        """
+        Aplica uma transição da máquina a partir dos argumentos recebidos.
+
+        Args:
+            args (tuple): Tupla contendo (cost, state, head, tape, path, transition).
+
+        Returns:
+            tuple: Novo estado da fila de prioridade no formato
+                (novo_custo, próximo_estado, nova_pos_cabeça, nova_fita, novo_caminho).
+        """
         cost, state, head, tape, path, transition = args
         next_state, write_symbol, move, weight = transition
 
@@ -80,6 +119,17 @@ class TuringMachine:
         return (new_cost, next_state, new_head, new_tape, new_path)
 
     def run_parallel(self, num_processes=4):
+        """
+        Executa a máquina de Turing utilizando multiprocessing para aplicar
+        transições em paralelo.
+
+        Args:
+            num_processes (int): Número de processos paralelos a utilizar.
+
+        Returns:
+            tuple or None: Tupla contendo fita final, caminho percorrido e custo total
+            caso encontre estado de aceitação. None caso contrário.
+        """
         priority_queue = [(0, self.start_state, self.head, list(self.tape), [])]
         visited = {}
 
@@ -111,7 +161,21 @@ class TuringMachine:
 
         return None
 
+
 def draw_graph(transitions, history, save_gif=False):
+    """
+    Desenha o grafo de transições da máquina e anima a execução
+    passo a passo.
+
+    Args:
+        transitions (dict): Dicionário das transições da máquina.
+        history (list): Histórico da execução contendo estados, cabeçote,
+            fita, caminho e custo.
+        save_gif (bool): Indica se a animação deve ser salva como GIF.
+
+    Returns:
+        None
+    """
     G = nx.DiGraph()
 
     for (state, symbol), transitions_list in transitions.items():
@@ -143,42 +207,14 @@ def draw_graph(transitions, history, save_gif=False):
         ani.save("turing_machine.gif", writer="pillow", fps=1)
     plt.show()
 
-# --- Ponto de entrada do programa --- #
+
 if __name__ == '__main__':
-    """freeze_support()  # Necessário no Windows para multiprocessing
-
-    # Definição dos estados e transições
-    states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q_accept'}
-    tape = ['0', '0', '1', '1', '0']
-
-    transitions = {
-        ('q0', '0'): [('q1', '0', 'R', 1), ('q2', '1', 'R', 2)],
-        ('q1', '0'): [('q2', '1', 'R', 3), ('q3', '0', 'L', 9)],
-        ('q2', '1'): [('q3', '0', 'R', 6), ('q2', '0', 'R', 7)],
-        ('q3', '1'): [('q4', '1', 'R', 1), ('q2', '1', 'L', 5)],
-        ('q4', '0'): [('q_accept', '_', 'R', 6)]
-    }
-
-    start_state = 'q0'
-    accept_states = {'q_accept'}
-
-    machine = TuringMachine(states, tape, transitions, start_state, accept_states)
-    result = machine.run_parallel(num_processes=4)
-
-    if result:
-        print("Fita final:", result[0])
-        print("Caminho percorrido:", result[1])
-        print("Soma ponderada:", result[2])
-    else:
-        print("Rejeitado")
-
-    draw_graph(transitions, machine.history, save_gif=False)"""
-
-    from multiprocessing import freeze_support
-
+    """
+    Ponto de entrada do programa. Executa as versões sequencial e paralela da
+    máquina de Turing, imprime resultados e exibe animação da execução.
+    """
     freeze_support()
 
-    # Definição dos estados e transições
     states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q_accept'}
     tape = ['0', '0', '1', '1', '0']
 
@@ -225,5 +261,4 @@ if __name__ == '__main__':
 
     print(f"Tempo PARALELO: {end_time - start_time:.4f} segundos")
 
-    # Gerar a animação da versão paralela
     draw_graph(transitions, machine_par.history, save_gif=False)
