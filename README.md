@@ -6,7 +6,7 @@ Este repositório contém a atividade de paralelização relacionada à discipli
 
 O projeto utilizado como base foi o seguinte:
 
-[Máquina de Turing Ponderada com Dijkstra](https://github.com/thalesvalente/teaching/tree/main/formal-languages-and-automata/3-projects/2024-2/p3/G4_MAQUINA_DE_TURING_PONDERADA_COM_DIJKSTRA)
+[G4_MAQUINA_DE_TURING_PONDERADA_COM_DIJKSTRA](https://github.com/thalesvalente/teaching/tree/main/formal-languages-and-automata/3-projects/2024-2/p3/G4_MAQUINA_DE_TURING_PONDERADA_COM_DIJKSTRA)
 
 ## Observação importante
 
